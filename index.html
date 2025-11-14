@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karachi 911 System Dispatch</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="branding">
+                    <h1><span class="karachi">Karachi</span> <span class="dispatch">911 System Dispatch</span></h1>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="#" class="nav-link active" data-page="home">Home</a></li>
+                        <li><a href="#" class="nav-link" data-page="dashboard" id="dashboard-nav">Dashboard</a></li>
+                        <li><a href="#" class="nav-link" data-page="report" id="report-nav">Report Emergency</a></li>
+                        <li><a href="#" class="nav-link" data-page="contact">Contact</a></li>
+                    </ul>
+                </nav>
+                <div class="user-info" id="user-info">
+                    <span id="user-greeting">Welcome, Guest</span>
+                    <span class="user-role" id="user-role">Not Logged In</span>
+                    <button id="logout-btn" class="role-btn hidden">Logout</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Home Page -->
+        <section id="home-page" class="page active">
+            <section class="hero">
+                <h2>👋 Welcome!</h2>
+                <p>Empowering Karachi's Emergency Response — Fast. Reliable. Connected.</p>
+                <div class="cta-buttons">
+                    <button class="simulation" onclick="showPopup('Dispatch Simulation', 'Launching simulation...')">🚑 Start Dispatch Simulation</button>
+                    <button class="reports" onclick="showPopup('Reports', 'Opening analytics dashboard...')">📊 View Reports</button>
+                </div>
+            </section>
+            
+            <section class="cards">
+                <article class="card" onclick="showPopup('Configure Contacts', 'Add and manage responder units, hospitals and police connections.')">
+                    <h3>Configure Contacts</h3>
+                    <p>Add and manage responder units, hospitals and police connections.</p>
+                </article>
+                <article class="card" onclick="showPopup('Configure Notification', 'Set rules for SMS, email, and siren alerts.')">
+                    <h3>Configure Notification</h3>
+                    <p>Set rules for SMS, email, and siren alerts.</p>
+                </article>
+                <article class="card" onclick="showPopup('Configure Alarming', 'Create emergency triggers linked to real-time sensors or reports.')">
+                    <h3>Configure Alarming</h3>
+                    <p>Create emergency triggers linked to real-time sensors or reports.</p>
+                </article>
+            </section>
+            
+            <section class="auth-section">
+                <div class="auth-buttons">
+                    <button class="login-btn" id="home-login-btn">🔑 Login</button>
+                    <button class="register-btn" id="home-register-btn">🧾 Register</button>
+                </div>
+                <p class="note">Only authorized personnel may access dispatch configuration.</p>
+                <div class="role-info">
+                    <p><strong>Available Roles:</strong> Citizen, Dispatcher, Hospital Staff, Police</p>
+                    <p><strong>Note:</strong> Admin access is restricted to authorized personnel only</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Login Page -->
+        <section id="login-page" class="page">
+            <div class="auth-container">
+                <div class="auth-form">
+                    <h2>Login to Your Account</h2>
+                    <form id="login-form">
+                        <div class="form-group">
+                            <label for="login-email">Email Address</label>
+                            <input type="email" id="login-email" name="email" required />
+                            <span class="error-message" id="login-email-error"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="login-password">Password</label>
+                            <input type="password" id="login-password" name="password" required />
+                            <span class="error-message" id="login-password-error"></span>
+                        </div>
+                        <button type="submit" class="submit-btn">Login</button>
+                    </form>
+                    <div class="form-footer">
+                        <p>Don't have an account? <a href="#" id="go-to-register">Register here</a></p>
+                    </div>
+                    <div id="login-message" class="message"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Register Page -->
+        <section id="register-page" class="page">
+            <div class="auth-container">
+                <div class="auth-form">
+                    <h2>Create Your Account</h2>
+                    <form id="register-form">
+                        <div class="form-group">
+                            <label for="register-name">Full Name</label>
+                            <input type="text" id="register-name" name="name" required />
+                            <span class="error-message" id="register-name-error"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-email">Email Address</label>
+                            <input type="email" id="register-email" name="email" required />
+                            <span class="error-message" id="register-email-error"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-password">Password</label>
+                            <input type="password" id="register-password" name="password" required />
+                            <span class="error-message" id="register-password-error"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-confirm-password">Confirm Password</label>
+                            <input type="password" id="register-confirm-password" name="confirmPassword" required />
+                            <span class="error-message" id="register-confirm-password-error"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-role">Select Your Role</label>
+                            <select id="register-role" name="role" required>
+                                <option value="">Select a role</option>
+                                <option value="citizen">Citizen</option>
+                                <option value="dispatcher">Dispatcher</option>
+                                <option value="hospital">Hospital Staff</option>
+                                <option value="police">Police</option>
+                            </select>
+                            <span class="error-message" id="register-role-error"></span>
+                            <p class="role-note">Note: Admin role is not available for registration. Please select from the available roles above.</p>
+                        </div>
+                        <button type="submit" class="submit-btn">Register</button>
+                    </form>
+                    <div class="form-footer">
+                        <p>Already have an account? <a href="#" id="go-to-login">Login here</a></p>
+                    </div>
+                    <div id="register-message" class="message"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dashboard Page -->
+        <section id="dashboard-page" class="page">
+            <div class="dashboard-header">
+                <h2 id="dashboard-title">Welcome to Your Dashboard</h2>
+                <p id="dashboard-info">Loading user information...</p>
+            </div>
+            <div class="dashboard-content">
+                <div id="dashboard-content">
+                    <!-- Role-specific content will be loaded here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Emergency Report Page -->
+        <section id="report-page" class="page">
+            <div class="report-container">
+                <div class="report-header">
+                    <h2>🚨 Emergency Report Form</h2>
+                    <p>Report emergencies quickly and accurately to ensure fast response</p>
+                </div>
+                
+                <form id="emergency-report-form" class="emergency-form">
+                    <div class="form-section">
+                        <h3>Personal Information</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="report-fullname">Full Name *</label>
+                                <input type="text" id="report-fullname" name="fullname" required />
+                                <span class="error-message" id="fullname-error"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="report-cnic">CNIC Number *</label>
+                                <input type="text" id="report-cnic" name="cnic" placeholder="XXXXX-XXXXXXX-X" required />
+                                <span class="error-message" id="cnic-error"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Emergency Details</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="emergency-type">Emergency Type *</label>
+                                <select id="emergency-type" name="emergencyType" required>
+                                    <option value="">Select emergency type</option>
+                                    <option value="fire">🔥 Fire</option>
+                                    <option value="medical">🏥 Medical</option>
+                                    <option value="crime">🚔 Crime</option>
+                                    <option value="accident">🚗 Accident</option>
+                                    <option value="other">❓ Other</option>
+                                </select>
+                                <span class="error-message" id="emergency-type-error"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="severity">Severity Level *</label>
+                                <select id="severity" name="severity" required>
+                                    <option value="">Select severity</option>
+                                    <option value="low">🟢 Low</option>
+                                    <option value="medium">🟡 Medium</option>
+                                    <option value="high">🟠 High</option>
+                                    <option value="critical">🔴 Critical</option>
+                                </select>
+                                <span class="error-message" id="severity-error"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="emergency-description">Emergency Description *</label>
+                            <textarea id="emergency-description" name="description" rows="4" placeholder="Please provide detailed information about the emergency..." required></textarea>
+                            <span class="error-message" id="description-error"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Location Information</h3>
+                        <div class="location-controls">
+                            <button type="button" id="get-location-btn" class="location-btn">
+                                📍 Get My Current Location
+                            </button>
+                            <span id="location-status" class="location-status"></span>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="location-address">Address *</label>
+                                <input type="text" id="location-address" name="address" placeholder="Enter your address or location" required />
+                                <span class="error-message" id="address-error"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="location-landmark">Nearest Landmark</label>
+                                <input type="text" id="location-landmark" name="landmark" placeholder="e.g., near Liberty Market" />
+                            </div>
+                        </div>
+                        
+                        <div class="map-container">
+                            <div id="location-map"></div>
+                            <p class="map-note">Map will show your reported location</p>
+                        </div>
+                        
+                        <div class="coordinates-display hidden" id="coordinates-display">
+                            <strong>Coordinates:</strong>
+                            <span id="coordinates-text">Not available</span>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="submit-btn emergency-submit">
+                            🚨 Submit Emergency Report
+                        </button>
+                        <button type="button" class="cancel-btn" onclick="showPage('home')">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- Report Confirmation Page -->
+        <section id="confirmation-page" class="page">
+            <div class="confirmation-container">
+                <div class="confirmation-card">
+                    <div class="confirmation-icon">✅</div>
+                    <h2>Emergency Report Submitted Successfully!</h2>
+                    
+                    <div class="report-summary">
+                        <div class="summary-item">
+                            <strong>Report ID:</strong>
+                            <span id="confirmation-report-id">-</span>
+                        </div>
+                        <div class="summary-item">
+                            <strong>Submitted At:</strong>
+                            <span id="confirmation-timestamp">-</span>
+                        </div>
+                        <div class="summary-item">
+                            <strong>Emergency Type:</strong>
+                            <span id="confirmation-type">-</span>
+                        </div>
+                        <div class="summary-item">
+                            <strong>Severity:</strong>
+                            <span id="confirmation-severity">-</span>
+                        </div>
+                        <div class="summary-item">
+                            <strong>Location:</strong>
+                            <span id="confirmation-location">-</span>
+                        </div>
+                    </div>
+                    
+                    <div class="confirmation-actions">
+                        <button class="role-btn" onclick="showPage('report')">Submit Another Report</button>
+                        <button class="role-btn secondary" onclick="showPage('home')">Return to Home</button>
+                    </div>
+                    
+                    <div class="emergency-contact">
+                        <h3>🚨 Emergency Contacts</h3>
+                        <p>If this is a life-threatening emergency, please also call:</p>
+                        <div class="contact-numbers">
+                            <span><strong>Police:</strong> 15</span>
+                            <span><strong>Ambulance:</strong> 115</span>
+                            <span><strong>Fire Brigade:</strong> 16</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Page -->
+        <section id="contact-page" class="page">
+            <div class="dashboard-header">
+                <h2>Contact Karachi Emergency Services</h2>
+            </div>
+            <div class="dashboard-content">
+                <div class="role-card">
+                    <h3>Emergency Contacts</h3>
+                    <p><strong>Emergency Helpline:</strong> 911</p>
+                    <p><strong>Police:</strong> 15</p>
+                    <p><strong>Fire Brigade:</strong> 16</p>
+                    <p><strong>Ambulance:</strong> 115</p>
+                </div>
+                <div class="role-card">
+                    <h3>Department Information</h3>
+                    <p><strong>Email:</strong> support@karachi911.gov.pk</p>
+                    <p><strong>Address:</strong> Karachi Emergency Services Department, Karachi, Pakistan</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Popup -->
+    <div id="popup" class="popup hidden">
+        <div class="popup-content">
+            <h3 id="popup-title"></h3>
+            <p id="popup-message"></p>
+            <button onclick="closePopup()" class="role-btn" style="margin-top: 1rem;">Close</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-info">
+                <p>📍 Karachi Emergency Services Department</p>
+                <p>📞 Helpline: 911</p>
+                <p>✉️ <a href="mailto:support@karachi911.gov.pk">support@karachi911.gov.pk</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
